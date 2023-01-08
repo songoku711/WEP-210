@@ -57,25 +57,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define ADC_EXT_CS_Pin GPIO_PIN_4
-#define ADC_EXT_CS_GPIO_Port GPIOA
-#define ADC_EXT_SCK_Pin GPIO_PIN_5
-#define ADC_EXT_SCK_GPIO_Port GPIOA
-#define ADC_EXT_MISO_Pin GPIO_PIN_6
-#define ADC_EXT_MISO_GPIO_Port GPIOA
-#define ADC_EXT_MOSI_Pin GPIO_PIN_7
-#define ADC_EXT_MOSI_GPIO_Port GPIOA
-#define ADC_EXT_IRQ_Pin GPIO_PIN_0
-#define ADC_EXT_IRQ_GPIO_Port GPIOB
-#define ADC_EXT_IRQ_EXTI_IRQn EXTI0_IRQn
-#define ADC_EXT_MCLK_Pin GPIO_PIN_1
-#define ADC_EXT_MCLK_GPIO_Port GPIOB
+#define K_TEMP_CS_Pin GPIO_PIN_4
+#define K_TEMP_CS_GPIO_Port GPIOA
+#define K_TEMP_SCK_Pin GPIO_PIN_5
+#define K_TEMP_SCK_GPIO_Port GPIOA
+#define K_TEMP_MISO_Pin GPIO_PIN_6
+#define K_TEMP_MISO_GPIO_Port GPIOA
 #define DBG_TX_Pin GPIO_PIN_10
 #define DBG_TX_GPIO_Port GPIOB
 #define DBG_RX_Pin GPIO_PIN_11
 #define DBG_RX_GPIO_Port GPIOB
 #define HC595_SCK_Pin GPIO_PIN_13
 #define HC595_SCK_GPIO_Port GPIOB
+#define RS485_CS_Pin GPIO_PIN_14
+#define RS485_CS_GPIO_Port GPIOB
 #define HC595_MOSI_Pin GPIO_PIN_15
 #define HC595_MOSI_GPIO_Port GPIOB
 #define HC595_CS_Pin GPIO_PIN_8
@@ -84,8 +79,6 @@ void Error_Handler(void);
 #define RS485_TX_GPIO_Port GPIOA
 #define RS485_RX_Pin GPIO_PIN_10
 #define RS485_RX_GPIO_Port GPIOA
-#define RS485_CS_Pin GPIO_PIN_12
-#define RS485_CS_GPIO_Port GPIOA
 #define SENS_OUT_1_Pin GPIO_PIN_4
 #define SENS_OUT_1_GPIO_Port GPIOB
 #define SENS_OUT_1_EXTI_IRQn EXTI4_IRQn
@@ -98,10 +91,6 @@ void Error_Handler(void);
 #define SENS_OUT_4_Pin GPIO_PIN_7
 #define SENS_OUT_4_GPIO_Port GPIOB
 #define SENS_OUT_4_EXTI_IRQn EXTI9_5_IRQn
-#define MEM_SCL_Pin GPIO_PIN_8
-#define MEM_SCL_GPIO_Port GPIOB
-#define MEM_SDA_Pin GPIO_PIN_9
-#define MEM_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -53,43 +53,43 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ADC_EXT_CS_Pin|HC595_CS_Pin|RS485_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, K_TEMP_CS_Pin|HC595_CS_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(RS485_CS_GPIO_Port, RS485_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PC13 PC14 PC15 */
   GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA0 PA1 PA2 PA3
-                           PA11 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_11|GPIO_PIN_15;
+  /*Configure GPIO pins : PA2 PA3 PA7 PA11
+                           PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_7|GPIO_PIN_11
+                          |GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = ADC_EXT_CS_Pin|HC595_CS_Pin|RS485_CS_Pin;
+  /*Configure GPIO pins : PAPin PAPin */
+  GPIO_InitStruct.Pin = K_TEMP_CS_Pin|HC595_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = ADC_EXT_IRQ_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ADC_EXT_IRQ_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = ADC_EXT_MCLK_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ADC_EXT_MCLK_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB2 PB12 PB14 PB3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_12|GPIO_PIN_14|GPIO_PIN_3;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB12
+                           PB3 PB8 PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_12
+                          |GPIO_PIN_3|GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = RS485_CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(RS485_CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
   GPIO_InitStruct.Pin = SENS_OUT_1_Pin|SENS_OUT_3_Pin|SENS_OUT_2_Pin|SENS_OUT_4_Pin;
@@ -98,9 +98,6 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-
   HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
