@@ -25,6 +25,7 @@
 /* ----------------------- Variables ----------------------------------------*/
 
 /* ----------------------- Start implementation -----------------------------*/
+
 void EnterCriticalSection(void)
 {
   taskENTER_CRITICAL();

@@ -18,29 +18,52 @@
  *
  * File: $Id: user_mb_app.c,v 1.60 2013/11/23 11:49:05 Armink $
  */
+
+/* ----------------------- Modbus includes ----------------------------------*/
+
+#include "mb.h"
+#include "mbconfig.h"
+#include "mbframe.h"
+#include "mbutils.h"
+
 #include "user_mb_app.h"
 
-/*------------------------Slave mode use these variables----------------------*/
-//Slave mode:DiscreteInputs variables
-USHORT   usSDiscInStart                               = S_DISCRETE_INPUT_START;
-#if S_DISCRETE_INPUT_NDISCRETES%8
-UCHAR    ucSDiscInBuf[S_DISCRETE_INPUT_NDISCRETES/8+1];
+
+
+/* ----------------------- Macro definitions --------------------------------*/
+
+
+
+/* ----------------------- Static variables ---------------------------------*/
+
+/* Discrete Inputs variables */
+USHORT usSDiscInStart                             = S_DISCRETE_INPUT_START;
+
+#if S_DISCRETE_INPUT_NDISCRETES % 8
+UCHAR ucSDiscInBuf[S_DISCRETE_INPUT_NDISCRETES/8 + 1];
 #else
-UCHAR    ucSDiscInBuf[S_DISCRETE_INPUT_NDISCRETES/8]  ;
+UCHAR ucSDiscInBuf[S_DISCRETE_INPUT_NDISCRETES/8];
 #endif
-//Slave mode:Coils variables
-USHORT   usSCoilStart                                 = S_COIL_START;
-#if S_COIL_NCOILS%8
-UCHAR    ucSCoilBuf[S_COIL_NCOILS/8+1]                ;
+
+/* Coils variables */
+USHORT usSCoilStart                               = S_COIL_START;
+#if S_COIL_NCOILS % 8
+UCHAR ucSCoilBuf[S_COIL_NCOILS/8 + 1];
 #else
-UCHAR    ucSCoilBuf[S_COIL_NCOILS/8]                  ;
+UCHAR ucSCoilBuf[S_COIL_NCOILS/8];
 #endif
-//Slave mode:InputRegister variables
-USHORT   usSRegInStart                                = S_REG_INPUT_START;
-USHORT   usSRegInBuf[S_REG_INPUT_NREGS]               ;
-//Slave mode:HoldingRegister variables
-USHORT   usSRegHoldStart                              = S_REG_HOLDING_START;
-USHORT   usSRegHoldBuf[S_REG_HOLDING_NREGS]           ;
+
+/* Input Register variables */
+USHORT usSRegInStart                              = S_REG_INPUT_START;
+USHORT usSRegInBuf[S_REG_INPUT_NREGS];
+
+/* Holding Register variables */
+USHORT usSRegHoldStart                            = S_REG_HOLDING_START;
+USHORT usSRegHoldBuf[S_REG_HOLDING_NREGS];
+
+
+
+/* ----------------------- Start implementation -----------------------------*/
 
 /**
  * Modbus slave input register callback function.

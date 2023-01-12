@@ -105,11 +105,6 @@ osMessageQueueId_t ioInputStateQueueHandle;
 const osMessageQueueAttr_t ioInputStateQueue_attributes = {
   .name = "ioInputStateQueue"
 };
-/* Definitions for adcConvResultQueue */
-osMessageQueueId_t adcConvResultQueueHandle;
-const osMessageQueueAttr_t adcConvResultQueue_attributes = {
-  .name = "adcConvResultQueue"
-};
 /* Definitions for mainFunctionTimer */
 osTimerId_t mainFunctionTimerHandle;
 const osTimerAttr_t mainFunctionTimer_attributes = {
@@ -179,10 +174,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* creation of ioInputStateQueue */
-  ioInputStateQueueHandle = osMessageQueueNew (1, sizeof(uint16_t), &ioInputStateQueue_attributes);
-
-  /* creation of adcConvResultQueue */
-  adcConvResultQueueHandle = osMessageQueueNew (1, sizeof(uint32_t), &adcConvResultQueue_attributes);
+  ioInputStateQueueHandle = osMessageQueueNew (10, sizeof(uint32_t), &ioInputStateQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -231,10 +223,6 @@ void MX_FREERTOS_Init(void) {
 void startMainTask(void *argument)
 {
   /* USER CODE BEGIN startMainTask */
-  HAL_StatusTypeDef retVal;
-  uint16_t tempCel;
-  uint8_t output[2] = {0x00, 0x00};
-  
   /* Wait for all initializations done */
   (void)osEventFlagsWait( systemInitEventHandle, \
                           SYSTEM_INIT_EVENT_MB_READY | SYSTEM_INIT_EVENT_IO_READY | SYSTEM_INIT_EVENT_SENS_READY, \
@@ -243,12 +231,7 @@ void startMainTask(void *argument)
   
   while (1)
   {
-    retVal  = MAX6675_ReadTemp(&tempCel, (uint8_t)0U);
-    retVal |= HC595_WriteByte(0U, output, 2U);
-    
-//    printf("Temp: %d\r\n", tempCel);
-    
-    osDelay(2000);
+    osDelay(1000);
   }
   /* USER CODE END startMainTask */
 }
@@ -373,7 +356,6 @@ void startAdcConvCbkTask(void *argument)
   while (1)
   {
     SensorManager_AdcConvMainFunction();
-    osDelay(1);
   }
   /* USER CODE END startAdcConvCbkTask */
 }

@@ -33,7 +33,14 @@ extern "C" {
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
+/* Hardware signal pin configuration */
+typedef struct
+{
+  GPIO_TypeDef                *hwSignalPort;
+  uint16_t                    hwSignalPin;
+} GPIOx_HwSignalConfig;
 
+extern GPIOx_HwSignalConfig GPIOx_hwSignalCfg[];
 /* USER CODE END Private defines */
 
 void MX_GPIO_Init(void);

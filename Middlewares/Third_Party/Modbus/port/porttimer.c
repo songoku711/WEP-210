@@ -20,26 +20,36 @@
  */
 
 /* ----------------------- Modbus includes ----------------------------------*/
+
 #include "mb.h"
 #include "mbconfig.h"
 
-/* ----------------------- Platform includes --------------------------------*/
 #include "tim.h"
 
+
+
 /* ----------------------- Macro definitions --------------------------------*/
-#define MODBUS_TIMER                        &htim3
+
+#define eMB_PORT_TIMER_INSTANCE                   &htim2
+
+
 
 /* ----------------------- Static functions ---------------------------------*/
-static void prvvTIMERExpiredISR(void);
-static void timer_timeout_ind(TIM_HandleTypeDef *xTimer);
+
+static void eMB_PortTimerElapsedCallback(TIM_HandleTypeDef *xTimer);
+
+
 
 /* ----------------------- Start implementation -----------------------------*/
+
 BOOL xMBPortTimersInit(USHORT usTim1Timerout50us)
 {
   /* Timer frequency is set to 20 kHz (period 50us) when initialization */
   MODBUS_DEBUG("Init timer!\r\n");
-  __HAL_TIM_SetAutoreload(MODBUS_TIMER, (usTim1Timerout50us - 1));
-  HAL_TIM_RegisterCallback(MODBUS_TIMER, HAL_TIM_PERIOD_ELAPSED_CB_ID, timer_timeout_ind);
+  
+  //__HAL_TIM_SetAutoreload(eMB_PORT_TIMER_INSTANCE, (usTim1Timerout50us - 1));
+  
+  HAL_TIM_RegisterCallback(eMB_PORT_TIMER_INSTANCE, HAL_TIM_PERIOD_ELAPSED_CB_ID, eMB_PortTimerElapsedCallback);
   
   return TRUE;
 }
@@ -48,26 +58,22 @@ void vMBPortTimersEnable()
 {
   MODBUS_DEBUG("Start timer!\r\n");
   
-  __HAL_TIM_SetCounter(MODBUS_TIMER, 0);
-  HAL_TIM_Base_Start_IT(MODBUS_TIMER);
+  __HAL_TIM_SetCounter(eMB_PORT_TIMER_INSTANCE, 0);
+  HAL_TIM_Base_Start_IT(eMB_PORT_TIMER_INSTANCE);
 }
 
 void vMBPortTimersDisable()
 {
   MODBUS_DEBUG("Stop timer!\r\n");
   
-  HAL_TIM_Base_Stop_IT(MODBUS_TIMER);
+  HAL_TIM_Base_Stop_IT(eMB_PORT_TIMER_INSTANCE);
 }
 
-void prvvTIMERExpiredISR(void)
-{
-  (void)pxMBPortCBTimerExpired();
-}
 
-static void timer_timeout_ind(TIM_HandleTypeDef *xTimer)
+
+static void eMB_PortTimerElapsedCallback(TIM_HandleTypeDef *xTimer)
 {
-  MODBUS_DEBUG("Timer callback!\r\n");
+  HAL_TIM_Base_Stop_IT(eMB_PORT_TIMER_INSTANCE);
   
-  HAL_TIM_Base_Stop_IT(MODBUS_TIMER);
-  prvvTIMERExpiredISR();
+  (void)pxMBPortCBTimerExpired();
 }

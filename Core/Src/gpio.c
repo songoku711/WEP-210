@@ -22,14 +22,21 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "ioManager.h"
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
 /* Configure GPIO                                                             */
 /*----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
-
+GPIOx_HwSignalConfig GPIOx_hwSignalCfg[IOMANAGER_SIGNAL_PIN_NUM] =
+{
+  /* Signal port              Signal pin         */
+  {  SENS_OUT_1_GPIO_Port,    SENS_OUT_1_Pin      },        /* Signal pin 0 */
+  {  SENS_OUT_2_GPIO_Port,    SENS_OUT_2_Pin      },        /* Signal pin 1 */
+  {  SENS_OUT_3_GPIO_Port,    SENS_OUT_3_Pin      },        /* Signal pin 2 */
+  {  SENS_OUT_4_GPIO_Port,    SENS_OUT_4_Pin      }         /* Signal pin 3 */
+};
 /* USER CODE END 1 */
 
 /** Configure pins as
@@ -90,19 +97,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(RS485_CS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = SENS_OUT_1_Pin|SENS_OUT_3_Pin|SENS_OUT_2_Pin|SENS_OUT_4_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 

@@ -1,13 +1,13 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    tim.h
+  * @file    dma.h
   * @brief   This file contains all the function prototypes for
-  *          the tim.c file
+  *          the dma.c file
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIM_H__
-#define __TIM_H__
+#ifndef __DMA_H__
+#define __DMA_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,44 +28,25 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+/* DMA memory to memory transfer handles -------------------------------------*/
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-extern TIM_HandleTypeDef htim2;
-
-extern TIM_HandleTypeDef htim3;
-
-extern TIM_HandleTypeDef htim4;
-
 /* USER CODE BEGIN Private defines */
-/* Hardware signal pin configuration */
-typedef struct
-{
-  TIM_HandleTypeDef           *hwTimerIns;
-  HAL_TIM_ActiveChannel       hwTimerActICChn;
-  HAL_TIM_ActiveChannel       hwTimerActOCChn;
-  uint32_t                    hwTimerICChn;
-  uint32_t                    hwTimerOCChn;
-  uint32_t                    hwTimerOCIrpt;
-} TIMx_HwSignalConfig;
 
-extern TIMx_HwSignalConfig TIMx_hwSignalCfg[];
 /* USER CODE END Private defines */
 
-void MX_TIM2_Init(void);
-void MX_TIM3_Init(void);
-void MX_TIM4_Init(void);
+void MX_DMA_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void TIMx_StartInputCapture(void);
-void TIMx_StopInputCapture(void);
-void TIMx_StopOutputCompare(void);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __TIM_H__ */
+#endif /* __DMA_H__ */
 

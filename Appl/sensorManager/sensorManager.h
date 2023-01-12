@@ -23,10 +23,6 @@ extern "C" {
 
 #include "main.h"
 
-#include "tim.h"
-#include "adc.h"
-#include "cmsis_os.h"
-
 
 
 /*===============================================================================================
@@ -45,7 +41,7 @@ void SensorManager_Init(void);
 void SensorManager_MainFunction(void);
 void SensorManager_AdcConvMainFunction(void);
 
-void SensorManager_AdcConvCallback(uint32_t arg);
+void SensorManager_AdcConvCallback(void);
 
 
 

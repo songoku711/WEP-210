@@ -23,16 +23,22 @@ extern "C" {
 
 #include "main.h"
 
-#include "tim.h"
-#include "gpio.h"
-#include "cmsis_os.h"
-
 
 
 /*===============================================================================================
 *                                     DEFINES AND MACROS
 ===============================================================================================*/
 
+#define IOMANAGER_SIGNAL_PIN_NUM                  4U
+
+#define IOMANAGER_SIGNAL_IC_THREAD_FLAG           (uint32_t)0x01000000
+#define IOMANAGER_SIGNAL_IC_THREAD_FLAG_MASK      (uint32_t)0x000000FF
+
+#define IOMANAGER_SIGNAL_OC_THREAD_FLAG           (uint32_t)0x02000000
+#define IOMANAGER_SIGNAL_OC_THREAD_FLAG_OFFSET    8U
+#define IOMANAGER_SIGNAL_OC_THREAD_FLAG_MASK      (uint32_t)0x0000FF00
+
+#define IOMANAGER_RELAY_PIN_NUM                   16U
 
 
 

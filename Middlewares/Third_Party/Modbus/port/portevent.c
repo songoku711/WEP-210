@@ -20,21 +20,27 @@
  */
 
 /* ----------------------- Modbus includes ----------------------------------*/
+
 #include "mb.h"
 #include "mbconfig.h"
 
+
+
 /* ----------------------- Static variables ---------------------------------*/
-static osEventFlagsId_t xSlaveOsEvent;
+
+static osEventFlagsId_t eMB_OsEvent;
+
+
 
 /* ----------------------- Start implementation -----------------------------*/
+
 BOOL xMBPortEventInit(void)
 {
-  //xSlaveOsEvent = xEventGroupCreate();
-  xSlaveOsEvent = osEventFlagsNew(NULL);
+  eMB_OsEvent = osEventFlagsNew(NULL);
 
-  if (xSlaveOsEvent == NULL)
+  if (eMB_OsEvent == NULL)
   {
-    MODBUS_DEBUG("xMBPortEventInit ERR=%d!\r\n", xSlaveOsEvent);
+    MODBUS_DEBUG("xMBPortEventInit ERR=%d!\r\n", eMB_OsEvent);
     return FALSE;
   }
   
@@ -44,7 +50,7 @@ BOOL xMBPortEventInit(void)
 BOOL xMBPortEventPost(eMBEventType eEvent)
 {
   MODBUS_DEBUG("Set event=%d!\r\n", eEvent);
-  osEventFlagsSet(xSlaveOsEvent, eEvent);
+  osEventFlagsSet(eMB_OsEvent, eEvent);
   
   return TRUE;
 }
@@ -55,7 +61,7 @@ BOOL xMBPortEventGet(eMBEventType *eEvent)
   
   /* waiting forever OS event */
   MODBUS_DEBUG("Wait for event...\r\n");
-  recvEvent = osEventFlagsWait(xSlaveOsEvent, EV_READY | EV_FRAME_RECEIVED | EV_EXECUTE | EV_FRAME_SENT,
+  recvEvent = osEventFlagsWait(eMB_OsEvent, EV_READY | EV_FRAME_RECEIVED | EV_EXECUTE | EV_FRAME_SENT,
                                  osFlagsWaitAny, MODBUS_EVENT_TIMEOUT);
   MODBUS_DEBUG("Received event=%d\r\n", recvEvent);
   
@@ -76,7 +82,6 @@ BOOL xMBPortEventGet(eMBEventType *eEvent)
       break;
     default:
       return FALSE;
-      break;
   }
   
   return TRUE;

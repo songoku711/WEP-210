@@ -81,16 +81,12 @@ void Error_Handler(void);
 #define RS485_RX_GPIO_Port GPIOA
 #define SENS_OUT_1_Pin GPIO_PIN_4
 #define SENS_OUT_1_GPIO_Port GPIOB
-#define SENS_OUT_1_EXTI_IRQn EXTI4_IRQn
 #define SENS_OUT_3_Pin GPIO_PIN_5
 #define SENS_OUT_3_GPIO_Port GPIOB
-#define SENS_OUT_3_EXTI_IRQn EXTI9_5_IRQn
 #define SENS_OUT_2_Pin GPIO_PIN_6
 #define SENS_OUT_2_GPIO_Port GPIOB
-#define SENS_OUT_2_EXTI_IRQn EXTI9_5_IRQn
 #define SENS_OUT_4_Pin GPIO_PIN_7
 #define SENS_OUT_4_GPIO_Port GPIOB
-#define SENS_OUT_4_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
