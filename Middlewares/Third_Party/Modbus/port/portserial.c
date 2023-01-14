@@ -54,16 +54,7 @@ typedef struct
 static UART_HandleTypeDef* eMB_pUartIns;
 
 /* Serial event */
-static osEventFlagsId_t eMB_PortSerialTxEvent;
-
-/* Serial Tx task */
-osThreadId_t eMB_PortSerialTxTaskHandle;
-
-const osThreadAttr_t eMB_PortSerialTxTask_attributes = {
-  .name = "eMBTxTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal7,
-};
+extern osEventFlagsId_t eMB_PortSerialTxEvent;
 
 static uint8_t eMB_recvData;
 
@@ -71,7 +62,7 @@ static uint8_t eMB_recvData;
 
 /* ----------------------- Static functions ---------------------------------*/
 
-static void eMB_PortSerialTxTask(void *parameter);
+//static void eMB_PortSerialTxTask(void *parameter);
 static void eMB_PortSerialRxCpltCallback(struct __UART_HandleTypeDef *huart);
 
 
@@ -89,10 +80,10 @@ BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPari
   HAL_UART_RegisterCallback(eMB_pUartIns, HAL_UART_RX_COMPLETE_CB_ID, eMB_PortSerialRxCpltCallback);
   
   /* Create serial transmitter event */
-  eMB_PortSerialTxEvent = osEventFlagsNew(NULL);
+//  eMB_PortSerialTxEvent = osEventFlagsNew(NULL);
   
   /* Create serial transmitter task */
-  eMB_PortSerialTxTaskHandle = osThreadNew(eMB_PortSerialTxTask, NULL, &eMB_PortSerialTxTask_attributes);
+//  eMB_PortSerialTxTaskHandle = osThreadNew(eMB_PortSerialTxTask, NULL, &eMB_PortSerialTxTask_attributes);
   
   eMB_PORT_SERIAL_RX_MODE();
   
@@ -158,7 +149,7 @@ BOOL xMBPortSerialGetByte(CHAR * pucByte)
  *
  * @param parameter parameter
  */
-static void eMB_PortSerialTxTask(void *parameter)
+void eMB_PortSerialTxTask(void *parameter)
 {
   while (1)
   {

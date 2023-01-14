@@ -430,6 +430,8 @@ eMBErrorCode eMBSlaveSetDataU16(eMBSlaveRegType regType, USHORT address, USHORT 
 eMBErrorCode eMBSlaveGetDataU32(eMBSlaveRegType regType, USHORT address, ULONG* value);
 eMBErrorCode eMBSlaveSetDataU32(eMBSlaveRegType regType, USHORT address, ULONG value);
 
+void eMB_PortSerialTxTask(void *parameter);
+
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif

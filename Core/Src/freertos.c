@@ -56,7 +56,16 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-USHORT inputData[8];
+/* Serial Tx task */
+osThreadId_t eMB_PortSerialTxTaskHandle;
+
+const osThreadAttr_t eMB_PortSerialTxTask_attributes = {
+  .name = "eMBTxTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal7,
+};
+
+osEventFlagsId_t eMB_PortSerialTxEvent;
 /* USER CODE END Variables */
 /* Definitions for mainTask */
 osThreadId_t mainTaskHandle;
@@ -200,7 +209,7 @@ void MX_FREERTOS_Init(void) {
   adcConvCbkTaskHandle = osThreadNew(startAdcConvCbkTask, NULL, &adcConvCbkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+  eMB_PortSerialTxTaskHandle = osThreadNew(eMB_PortSerialTxTask, NULL, &eMB_PortSerialTxTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* Create the event(s) */
@@ -208,7 +217,7 @@ void MX_FREERTOS_Init(void) {
   systemInitEventHandle = osEventFlagsNew(&systemInitEvent_attributes);
 
   /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
+  eMB_PortSerialTxEvent = osEventFlagsNew(NULL);
   /* USER CODE END RTOS_EVENTS */
 
 }
@@ -252,7 +261,7 @@ void starteMBTask(void *argument)
   osEventFlagsSet(systemInitEventHandle, SYSTEM_INIT_EVENT_MB_READY);
   
   /* Infinite loop */
-  for(;;)
+  while (1)
   {
     eMBPoll();
   }
@@ -298,6 +307,12 @@ void startIoManagerTask(void *argument)
 void startSensorTask(void *argument)
 {
   /* USER CODE BEGIN startSensorTask */
+  /* Wait for Modbus initialization done */
+  (void)osEventFlagsWait( systemInitEventHandle, \
+                          SYSTEM_INIT_EVENT_MB_READY, \
+                          osFlagsWaitAny | osFlagsNoClear, \
+                          osWaitForever);
+  
   SensorManager_Init();
   
   osEventFlagsSet(systemInitEventHandle, SYSTEM_INIT_EVENT_SENS_READY);
@@ -331,7 +346,6 @@ void startIoExtIrqCbkTask(void *argument)
   while (1)
   {
     IoManager_ExtIrptMainFunction();
-    osDelay(1);
   }
   /* USER CODE END startIoExtIrqCbkTask */
 }
