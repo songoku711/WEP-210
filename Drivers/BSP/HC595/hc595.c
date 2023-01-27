@@ -89,6 +89,12 @@ HAL_StatusTypeDef HC595_Init
   void
 )
 {
+  uint8_t data[2] = {0x00, 0x00};
+  
+  __HC595_CS_RESET();
+  
+  HAL_SPI_Transmit(&HC595_SPI_INSTANCE, data, (uint8_t)2U, HAL_MAX_DELAY);
+  
   __HC595_CS_SET();
   
   return HAL_OK;

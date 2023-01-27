@@ -54,6 +54,14 @@ extern "C" {
 
 #define SENSORMANAGER_ADC_CONV_CPLT_FLAG          (uint32_t)0x01
 
+typedef enum
+{
+  SENSORMANAGER_CONV_STATE_INIT,
+  SENSORMANAGER_CONV_STATE_MEASURE,
+  SENSORMANAGER_CONV_STATE_CALC,
+  SENSORMANAGER_CONV_STATE_RESULT,
+} SensorManager_ConvStateType;
+
 
 
 /*===============================================================================================
@@ -62,12 +70,16 @@ extern "C" {
 
 extern osThreadId_t adcConvCbkTaskHandle;
 
-uint32_t adc_value[2];
-static uint8_t adc_conv_state;
+static uint32_t sensorManager_convRawValue[2];
+static uint8_t sensorManager_convAvailable;
+static uint8_t sensorManager_convMeasureDone;
 
-uint16_t curTempVal;
+static SensorManager_ConvStateType sensorManager_convState;
 
-static uint32_t tempResLookupTable[SENSORMANAGER_TEMP_LOOKUP_TABLE_SIZE] =
+static uint16_t sensorManager_tempVal;
+static uint16_t sensorManager_presVal;
+
+static const uint32_t tempResLookupTable[SENSORMANAGER_TEMP_LOOKUP_TABLE_SIZE] =
 {
   32754,   /*   0 C */ 
   31124,   /*   1 C */ 
@@ -193,6 +205,7 @@ void SensorManager_InternalUpdateDataSubMainFunction(void);
 void SensorManager_InternalCalcTemp(uint32_t adcVal, uint16_t* tempVal)
 {
   static uint8_t notFirstTimeLookup = (uint8_t)0U;
+  static uint16_t sensorManager_curTempVal;
   float volTemp;
   float tempResTemp;
   uint32_t tempRes;
@@ -223,31 +236,31 @@ void SensorManager_InternalCalcTemp(uint32_t adcVal, uint16_t* tempVal)
     /* Find NTC temperature by searching in look-up table array */
     if (notFirstTimeLookup)
     {
-      if ((tempResLookupTable[curTempVal - 1] > tempRes) && (tempResLookupTable[curTempVal] <= tempRes))
+      if ((tempResLookupTable[sensorManager_curTempVal - 1] > tempRes) && (tempResLookupTable[sensorManager_curTempVal] <= tempRes))
       {
-        *tempVal = curTempVal;
+        *tempVal = sensorManager_curTempVal;
       }
-      else if (tempResLookupTable[curTempVal - 1] <= tempRes)
+      else if (tempResLookupTable[sensorManager_curTempVal - 1] <= tempRes)
       {
-        for (uint8_t index = (uint8_t)curTempVal - (uint8_t)1U; index > (uint8_t)0U; index++)
+        for (uint8_t index = (uint8_t)sensorManager_curTempVal - (uint8_t)1U; index > (uint8_t)0U; index++)
         {
           if ((tempResLookupTable[index - 1] > tempRes) && (tempResLookupTable[index] <= tempRes))
           {
-            curTempVal = (uint16_t)index;
-            *tempVal = curTempVal;
+            sensorManager_curTempVal = (uint16_t)index;
+            *tempVal = sensorManager_curTempVal;
             
             break;
           }
         }
       }
-      else if (tempResLookupTable[curTempVal] > tempRes)
+      else if (tempResLookupTable[sensorManager_curTempVal] > tempRes)
       {
-        for (uint8_t index = (uint8_t)curTempVal; index < SENSORMANAGER_TEMP_LOOKUP_TABLE_SIZE; index++)
+        for (uint8_t index = (uint8_t)sensorManager_curTempVal; index < SENSORMANAGER_TEMP_LOOKUP_TABLE_SIZE; index++)
         {
           if ((tempResLookupTable[index] > tempRes) && (tempResLookupTable[index + 1] <= tempRes))
           {
-            curTempVal = (uint16_t)index;
-            *tempVal = curTempVal;
+            sensorManager_curTempVal = (uint16_t)index;
+            *tempVal = sensorManager_curTempVal;
             
             break;
           }
@@ -264,8 +277,8 @@ void SensorManager_InternalCalcTemp(uint32_t adcVal, uint16_t* tempVal)
       {
         if ((tempResLookupTable[index - 1] > tempRes) && (tempResLookupTable[index] <= tempRes))
         {
-          curTempVal = index;
-          *tempVal = curTempVal;
+          sensorManager_curTempVal = index;
+          *tempVal = sensorManager_curTempVal;
           
           notFirstTimeLookup = (uint8_t)1U;
           
@@ -276,6 +289,7 @@ void SensorManager_InternalCalcTemp(uint32_t adcVal, uint16_t* tempVal)
   }
 }
 
+/*=============================================================================================*/
 void SensorManager_InternalCalcPres(uint32_t adcVal, uint16_t* presVal)
 {
   float volTemp;
@@ -302,9 +316,11 @@ void SensorManager_InternalCalcPres(uint32_t adcVal, uint16_t* presVal)
 
 
 
+/*=============================================================================================*/
 void SensorManager_InternalTriggerConvSubMainFunction(void)
 {
-  static uint8_t adc_counter = (uint8_t)10U;
+  static uint8_t adc_counter = (uint8_t)0U;
+  static uint8_t adc_timeout = (uint8_t)0U;
   
   if (adc_counter < (uint8_t)20U)
   {
@@ -314,39 +330,71 @@ void SensorManager_InternalTriggerConvSubMainFunction(void)
   {
     adc_counter = (uint8_t)0U;
     
-    if (adc_conv_state == (uint8_t)0U)
-    {
-      HAL_ADC_Start_DMA(&hadc1, adc_value, 2U);
-      
-      adc_conv_state = (uint8_t)1U;
-    }
+    sensorManager_convAvailable = (uint8_t)1U;
   }
-}
-
-void SensorManager_InternalUpdateDataSubMainFunction(void)
-{
-  static uint8_t updateDataCnt = (uint8_t)0U;
-  uint16_t tempVal;
-  uint16_t presVal;
   
-  if (updateDataCnt < (uint8_t)20U)
+  switch (sensorManager_convState)
   {
-    updateDataCnt++;
-  }
-  else
-  {
-    updateDataCnt = (uint8_t)0U;
-    
-    if (adc_conv_state == (uint8_t)2U)
+    case SENSORMANAGER_CONV_STATE_INIT:
+    {
+      if (sensorManager_convAvailable != (uint8_t)0U)
+      {
+        sensorManager_convAvailable = (uint8_t)0U;
+        
+        HAL_ADC_Start_DMA(&hadc1, sensorManager_convRawValue, 2U);
+        
+        adc_timeout = (uint8_t)0U;
+        sensorManager_convState = SENSORMANAGER_CONV_STATE_MEASURE;
+      }
+      
+      break;
+    }
+    case SENSORMANAGER_CONV_STATE_MEASURE:
+    {
+      if (adc_timeout < (uint8_t)200U)
+      {
+        adc_timeout++;
+        
+        if (sensorManager_convMeasureDone != (uint8_t)0U)
+        {
+          sensorManager_convMeasureDone = (uint8_t)0U;
+          
+          adc_timeout = (uint8_t)0U;
+          sensorManager_convState = SENSORMANAGER_CONV_STATE_CALC;
+        }
+      }
+      else
+      {
+        adc_timeout = (uint8_t)0U;
+        sensorManager_convState = SENSORMANAGER_CONV_STATE_INIT;
+      }
+      
+      break;
+    }
+    case SENSORMANAGER_CONV_STATE_CALC:
+    {
+      SensorManager_InternalCalcTemp(sensorManager_convRawValue[SENSORMANAGER_TEMPERATURE_OFFSET], &sensorManager_tempVal);
+      SensorManager_InternalCalcPres(sensorManager_convRawValue[SENSORMANAGER_PRESSURE_OFFSET], &sensorManager_presVal);
+      
+      sensorManager_convState = SENSORMANAGER_CONV_STATE_RESULT;
+      
+      break;
+    }
+    case SENSORMANAGER_CONV_STATE_RESULT:
     {
       /* Update sensor value in input variables */
-      SensorManager_InternalCalcTemp(adc_value[SENSORMANAGER_TEMPERATURE_OFFSET], &tempVal);
-      SensorManager_InternalCalcPres(adc_value[SENSORMANAGER_PRESSURE_OFFSET], &presVal);
+      eMBSlaveSetDataU16(MB_SLAVE_REG_TYPE_INPUT, SENSORMANAGER_TEMPERATURE_OFFSET, sensorManager_tempVal);
+      eMBSlaveSetDataU16(MB_SLAVE_REG_TYPE_INPUT, SENSORMANAGER_PRESSURE_OFFSET, sensorManager_presVal);
       
-      eMBSlaveSetDataU16(MB_SLAVE_REG_TYPE_INPUT, SENSORMANAGER_TEMPERATURE_OFFSET, tempVal);
-      eMBSlaveSetDataU16(MB_SLAVE_REG_TYPE_INPUT, SENSORMANAGER_PRESSURE_OFFSET, presVal);
+      sensorManager_convState = SENSORMANAGER_CONV_STATE_INIT;
       
-      adc_conv_state = (uint8_t)0U;
+      break;
+    }
+    default:
+    {
+      sensorManager_convState = SENSORMANAGER_CONV_STATE_INIT;
+      
+      break;
     }
   }
 }
@@ -359,7 +407,9 @@ void SensorManager_InternalUpdateDataSubMainFunction(void)
 
 void SensorManager_Init(void)
 {
-  adc_conv_state = (uint8_t)0U;
+  sensorManager_convAvailable = (uint8_t)1U;
+  sensorManager_convMeasureDone = (uint8_t)0U;
+  sensorManager_convState = SENSORMANAGER_CONV_STATE_INIT;
   
   /* Calibration ADC for more precise results */
   HAL_ADCEx_Calibration_Start(&hadc1);
@@ -371,7 +421,6 @@ void SensorManager_Init(void)
 void SensorManager_MainFunction(void)
 {
   SensorManager_InternalTriggerConvSubMainFunction();
-  SensorManager_InternalUpdateDataSubMainFunction();
 }
 
 /*=============================================================================================*/
@@ -383,7 +432,7 @@ void SensorManager_AdcConvMainFunction(void)
   
   if (recvFlag == SENSORMANAGER_ADC_CONV_CPLT_FLAG)
   {
-    adc_conv_state = (uint8_t)2U;
+    sensorManager_convMeasureDone = (uint8_t)1U;
   }
 }
 
